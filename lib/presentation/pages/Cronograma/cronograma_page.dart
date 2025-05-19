@@ -69,13 +69,13 @@ class _CronogramaPageState extends State<CronogramaPage> {
     try {
       final db = await DatabaseHelper.instance.database;
       final feriados = await db.query('FeriadosMunicipais');
-      
+
       setState(() {
         _feriadosMunicipais.clear();
         for (var feriado in feriados) {
           try {
             final dateStr = feriado['data'] as String;
-            final date = dateStr.contains('T') 
+            final date = dateStr.contains('T')
                 ? DateTime.parse(dateStr).toLocal()
                 : DateTime.parse(dateStr);
             final normalizedDate = DateTime(date.year, date.month, date.day);
@@ -269,8 +269,8 @@ class _CronogramaPageState extends State<CronogramaPage> {
   }
 
   bool _isDiaUtil(DateTime day) {
-    if (day.weekday == 6 || day.weekday == 7) return false;
-    if (_isFeriado(day)) return false;
+    if (day.weekday == 7) return false; // Apenas domingo não é dia útil
+    if (_isFeriado(day)) return false; // Feriados também não são dias úteis
     return true;
   }
 
@@ -290,8 +290,9 @@ class _CronogramaPageState extends State<CronogramaPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    'Não é possível agendar em finais de semana ou feriados: $formatados')),
+              content: Text(
+                  'Não é possível agendar em domingos ou feriados: $formatados'),
+            ),
           );
         }
         return;
@@ -453,8 +454,8 @@ class _CronogramaPageState extends State<CronogramaPage> {
                   children: [
                     _buildLegendaItem(
                         'F', 'Feriado', PdfColors.red100, PdfColors.red),
-                    _buildLegendaItem('FDS', 'Fim de semana', PdfColors.red100,
-                        PdfColors.red),
+                    _buildLegendaItem(
+                        'Dom', 'Domingo', PdfColors.red100, PdfColors.red),
                     _buildLegendaItem('Xh', 'Aula (horas)', PdfColors.blue100,
                         PdfColors.blue900),
                     _buildLegendaItem(
@@ -653,7 +654,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
       Map<String, List<Map<String, dynamic>>> aulasPorUc,
       Map<String, PdfColor> ucColors) {
     final isFimDeSemanaOuFeriado =
-        dia.weekday == 6 || dia.weekday == 7 || _isFeriado(dia);
+        dia.weekday == 7 || _isFeriado(dia); // Apenas domingo e feriados
 
     if (isFimDeSemanaOuFeriado) {
       return pw.Container(
@@ -1118,7 +1119,8 @@ class _CronogramaPageState extends State<CronogramaPage> {
                     },
                     defaultBuilder: (context, date, _) {
                       final isFeriado = _isFeriado(date);
-                      final isWeekend = date.weekday == 6 || date.weekday == 7;
+                      final isDomingo = date.weekday == 7;
+                      final isSabado = date.weekday == 6;
                       final isToday = isSameDay(date, DateTime.now());
                       final isSelected = _selectedDays.contains(date) ||
                           isSameDay(_selectedDay, date);
@@ -1138,9 +1140,12 @@ class _CronogramaPageState extends State<CronogramaPage> {
                                 ? Colors.orange
                                 : isFeriado
                                     ? Colors.red
-                                    : isSelected
+                                    : isSabado
                                         ? Colors.blue
-                                        : Colors.transparent,
+                                            .shade200 // Cor diferente para sábado (não nula)
+                                        : isSelected
+                                            ? Colors.blue
+                                            : Colors.transparent,
                             width: isToday ? 2 : 1,
                           ),
                           shape: BoxShape.circle,
@@ -1151,11 +1156,14 @@ class _CronogramaPageState extends State<CronogramaPage> {
                             style: TextStyle(
                               color: isFeriado
                                   ? Colors.red[800]
-                                  : isWeekend
+                                  : isDomingo
                                       ? Colors.red
-                                      : isSelected
-                                          ? Colors.blue[900]
-                                          : null,
+                                      : isSabado
+                                          ? Colors.blue
+                                              .shade800 // Cor diferente para sábado (não nula)
+                                          : isSelected
+                                              ? Colors.blue[900]
+                                              : null,
                               fontWeight: isFeriado || isSelected
                                   ? FontWeight.bold
                                   : null,
