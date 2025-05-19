@@ -456,7 +456,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
                         'F', 'Feriado', PdfColors.red100, PdfColors.red),
                     _buildLegendaItem(
                         'Dom', 'Domingo', PdfColors.red100, PdfColors.red),
-                    _buildLegendaItem('Xh', 'Aula (horas)', PdfColors.blue100,
+                    _buildLegendaItem('H', 'Aula (horas)', PdfColors.blue100,
                         PdfColors.blue900),
                     _buildLegendaItem(
                         '', 'Dia sem aula', PdfColors.grey200, PdfColors.black),
@@ -665,7 +665,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
         ),
         child: pw.Center(
           child: pw.Text(
-            dia.weekday == 6 || dia.weekday == 7 ? 'FDS' : 'F',
+            dia.weekday == 6 || dia.weekday == 7 ? 'Dom' : 'F',
             style: pw.TextStyle(
               fontSize: 8,
               fontWeight: pw.FontWeight.bold,
