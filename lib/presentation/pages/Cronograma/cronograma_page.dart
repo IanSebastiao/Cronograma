@@ -58,7 +58,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
     final now = DateTime.now();
     _focusedDay = now;
     _selectedDay = now;
-    _carregarFeriadosBrasileiros(now.year);
+    _carregarFeriadosBrasileiros(); // Removido o parâmetro do ano
     _carregarFeriadosMunicipais();
     _carregarTurmas().then((_) => _carregarAulas());
     _carregarCargaHorariaUc();
@@ -140,24 +140,31 @@ class _CronogramaPageState extends State<CronogramaPage> {
     }
   }
 
-  Future<void> _carregarFeriadosBrasileiros(int ano) async {
-    _feriadosNacionais[DateTime(ano, 1, 1)] = '🎉 Ano Novo';
-    _feriadosNacionais[DateTime(ano, 4, 21)] = '🎖 Tiradentes';
-    _feriadosNacionais[DateTime(ano, 5, 1)] = '👷 Dia do Trabalho';
-    _feriadosNacionais[DateTime(ano, 9, 7)] = '🇧🇷 Independência do Brasil';
-    _feriadosNacionais[DateTime(ano, 10, 12)] = '🙏 Nossa Senhora Aparecida';
-    _feriadosNacionais[DateTime(ano, 11, 2)] = '🕯 Finados';
-    _feriadosNacionais[DateTime(ano, 11, 15)] = '🏛 Proclamação da República';
-    _feriadosNacionais[DateTime(ano, 12, 25)] = '🎄 Natal';
+  Future<void> _carregarFeriadosBrasileiros() async {
+    _feriadosNacionais.clear();
 
-    final pascoa = _calcularPascoa(ano);
-    _feriadosNacionais[pascoa] = '🐣 Páscoa';
-    _feriadosNacionais[pascoa.subtract(const Duration(days: 2))] =
-        '✝ Sexta-Feira Santa';
-    _feriadosNacionais[pascoa.subtract(const Duration(days: 47))] =
-        '🎭 Carnaval';
-    _feriadosNacionais[pascoa.add(const Duration(days: 60))] =
-        '🍞 Corpus Christi';
+    // Calcula feriados para cada ano de 2020 até 2120 (100 anos de cobertura)
+    for (int ano = 2020; ano <= 2120; ano++) {
+      // Feriados fixos
+      _feriadosNacionais[DateTime(ano, 1, 1)] = '🎉 Ano Novo';
+      _feriadosNacionais[DateTime(ano, 4, 21)] = '🎖 Tiradentes';
+      _feriadosNacionais[DateTime(ano, 5, 1)] = '👷 Dia do Trabalho';
+      _feriadosNacionais[DateTime(ano, 9, 7)] = '🇧🇷 Independência do Brasil';
+      _feriadosNacionais[DateTime(ano, 10, 12)] = '🙏 Nossa Senhora Aparecida';
+      _feriadosNacionais[DateTime(ano, 11, 2)] = '🕯 Finados';
+      _feriadosNacionais[DateTime(ano, 11, 15)] = '🏛 Proclamação da República';
+      _feriadosNacionais[DateTime(ano, 12, 25)] = '🎄 Natal';
+
+      // Feriados móveis baseados na Páscoa
+      final pascoa = _calcularPascoa(ano);
+      _feriadosNacionais[pascoa] = '🐣 Páscoa';
+      _feriadosNacionais[pascoa.subtract(const Duration(days: 2))] =
+          '✝ Sexta-Feira Santa';
+      _feriadosNacionais[pascoa.subtract(const Duration(days: 47))] =
+          '🎭 Carnaval';
+      _feriadosNacionais[pascoa.add(const Duration(days: 60))] =
+          '🍞 Corpus Christi';
+    }
   }
 
   DateTime _calcularPascoa(int ano) {
